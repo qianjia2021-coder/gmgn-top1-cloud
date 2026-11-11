@@ -43,5 +43,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 5,
   "ts": 1794413186
+ },
+ "ednud65ufwmxp3twgwvq1gtl8qnd2ax3au5ajtdscult": {
+  "addr": "EDNud65UFwMxP3TWGWvq1GTL8Qnd2aX3aU5aJtdsCuLt",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
+  "attempts": 1,
+  "ts": 1794414045
  }
 }
