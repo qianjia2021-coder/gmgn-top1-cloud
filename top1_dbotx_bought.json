@@ -59,7 +59,7 @@
   "ok": false,
   "id": "",
   "err": "chain 未接入 dbotx：base",
-  "attempts": 2,
-  "ts": 1794415944
+  "attempts": 3,
+  "ts": 1794416062
  }
 }
