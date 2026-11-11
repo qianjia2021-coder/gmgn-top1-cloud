@@ -32,7 +32,7 @@
   "ok": false,
   "id": "",
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 3,
-  "ts": 1794412608
+  "attempts": 4,
+  "ts": 1794412707
  }
 }
