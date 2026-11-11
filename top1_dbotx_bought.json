@@ -187,5 +187,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794430850
+ },
+ "5qap7okuqkffwwo5daeqdottsblmpdbqtxekcdatpump": {
+  "addr": "5qaP7oKUqKffwwo5DaEqDoTtsBLMpdbQTxEkCDaTpump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794430935
  }
 }
