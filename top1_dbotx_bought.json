@@ -196,5 +196,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 5,
   "ts": 1794431427
+ },
+ "fzxhlugigchy5uvvoeqh1ekixtrgdn67wubhuc1float": {
+  "addr": "FZxHLUGiGchY5uvvoeqh1EKiXTrGdN67WUBhUc1fLoat",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwcnxf9o0xa2x0",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794434438
  }
 }
