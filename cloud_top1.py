@@ -22,7 +22,7 @@ Env:
   TG_API_ID / TG_API_HASH / TG_STRING_SESSION
                       独立登录的第二份用户会话（与本机 web3_session 不同 auth key）
   TG_CHAT_ID          目标群，默认 -5589667040（GMGN热搜）
-  HB_STALE            本机心跳过期阈值（秒），默认 180
+  HB_STALE            本机心跳过期阈值（秒），默认 120（与 Worker 端一致）
   LIMIT               每链取多少条，默认 30（与本机采集端一致）
   DRY_RUN             只打印将推送的消息，不发送、不写状态
   SELF_TEST           只发一条自检消息，不取数
@@ -57,7 +57,7 @@ REPO = os.environ.get("REPO", "qianjia2021-coder/gmgn-top1-cloud")
 STATE_PATH = "top1_state.json"
 HB_PATH = "top1_heartbeat.json"
 TG_CHAT = int(os.environ.get("TG_CHAT_ID", "-5589667040"))
-HB_STALE = int(os.environ.get("HB_STALE", "180"))
+HB_STALE = int(os.environ.get("HB_STALE", "120"))
 HB_FUTURE_TOLERANCE = 300
 LIMIT = int(os.environ.get("LIMIT", "30"))
 DRY_RUN = os.environ.get("DRY_RUN", "") not in ("", "0", "false", "False")
