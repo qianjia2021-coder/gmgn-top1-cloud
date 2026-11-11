@@ -160,5 +160,14 @@
   "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
   "attempts": 2,
   "ts": 1794430654
+ },
+ "hpspangqxqzrwzow8e9hecgmq4cdov1cmcfteyu5h53z": {
+  "addr": "HPSpaNgQxqZRwzoW8E9hecgMq4cDoV1CMCfteyu5h53z",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
+  "attempts": 1,
+  "ts": 1794430679
  }
 }
