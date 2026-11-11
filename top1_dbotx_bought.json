@@ -34,5 +34,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 4,
   "ts": 1794412707
+ },
+ "desla3agxjqguztw6qufgv1k64hsjqhpkrfdt1fypump": {
+  "addr": "DESLa3aGXJqguzTW6QUFGv1k64hSjQHPkrfdT1fypump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794412718
  }
 }
