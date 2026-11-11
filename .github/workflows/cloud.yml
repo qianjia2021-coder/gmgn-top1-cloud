@@ -1,0 +1,51 @@
+name: top1-cloud
+
+# 独立实例：只在「本机心跳过期」时接管，与本机推送器互斥
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: top1-cloud
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装 gmgn-cli
+        run: npm install -g gmgn-cli
+
+      - name: 配置 GMGN API Key
+        env:
+          GMGN_API_KEY: ${{ secrets.GMGN_API_KEY }}
+        run: gmgn-cli config --apply "$GMGN_API_KEY"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装依赖
+        run: pip install --quiet telethon requests
+
+      - name: 运行监控
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+          TG_CHAT_ID: '-5589667040'
+          HB_STALE: '180'
+        run: python cloud_top1.py
