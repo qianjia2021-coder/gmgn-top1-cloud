@@ -89,3 +89,75 @@ printf 'GMGN_API_KEY=%s\n' "$GMGN_API_KEY" > ~/.config/gmgn/.env
 在发送消息前还会二次确认去重表。跨网络的「读取—发送—写回」仍然不是一个事务，
 切换窗口内的重复推送概率被压缩，但没有被完全消除。
 
+## 外部调度器（替代不生效的 GitHub schedule）
+
+### 问题
+
+仓库建立后连续观察约 62 分钟，8 次运行 event **全部是 `workflow_dispatch`**，
+`cron: '*/5 * * * *'` 一次都没有自行触发。workflow `state=active`、默认分支 `main`、
+`pushed_at` 正常，因此不是配置错误，而是 GitHub 对新建/低活动仓库的 schedule 延迟与丢弃。
+后果：本机关机后云端不会自行醒来，「关机接管」在该问题修复前不成立。
+
+### 已启用的方案：云主机常驻定时器（不依赖任何额外账号）
+
+部署位置 `/home/user/gmgn_top1_cron/`，脚本 `cron.py`，凭据 `token`（600 权限）。
+
+每 120 秒执行一次：
+
+1. 读 `top1_heartbeat.json`，心跳龄 `< 180` 秒 → 本机在线，跳过，不打 dispatch
+2. 心跳龄 `>= 180` 秒 → 判定本机离线，POST `workflow_dispatch`
+3. 心跳读不到 → 按离线处理并触发（宁可多跑一轮，也不让关机后永远不醒）
+
+只在本机离线时才消耗 Actions 运行；本机在线时每 2 分钟仅一次 GitHub Contents 读取。
+
+实测记录（2026-11-11）：
+
+```
+09:37:10 调度器启动 | 检查间隔 120s | 心跳阈值 180s | 进程 1228
+09:37:11 本机在线，跳过（心跳龄 16s，累积跳过 1 次）
+```
+
+受控测试（临时目录、`HB_STALE=0`，验证触发分支）：
+
+```
+09:37:32 本机心跳龄 37s 超过阈值 0s，判定离线，触发云端接管
+09:37:33 触发成功 | heartbeat-37s
+```
+
+该次触发产生 run `42940309005`，云端日志为：
+
+```
+[01:37:51] 本机心跳龄 56 秒（阈值 180 秒）
+[01:37:51] 本机在线，云端本轮不接管
+```
+
+即触发链路打通、且没有误发消息，互斥逻辑仍然生效。
+
+进程存活校验：`cat /home/user/gmgn_top1_cron/cron.pid`，日志 `/home/user/gmgn_top1_cron/cron.log`。
+启动命令：
+
+```bash
+cd /home/user/gmgn_top1_cron && setsid nohup python3 cron.py >/dev/null 2>&1 < /dev/null &
+```
+
+已知限制：云主机的 cron 守护进程无权限启动，因此该进程靠 `nohup` 常驻，**宿主机重启后需要重新执行上面的启动命令**；日志与 pid 文件会保留，便于判断是否掉线。
+
+### 备选方案：Cloudflare Worker（需一次账号授权，尚未部署）
+
+`worker/` 目录下已备好 `worker.js` + `wrangler.toml` + `部署说明.md`，逻辑同上（每 2 分钟检查心跳，过期才 dispatch），
+Worker 名 `gmgn-top1-cron`，与历史的 `onchain-alpha-cron` 完全独立。部署需要一个 Cloudflare API Token
+（模板 `Edit Cloudflare Workers`）与 Account ID，`wrangler` 已安装（4.160.0）。
+
+尚未部署的原因：Cloudflare OAuth 授权需要登录账号，无法由脚本代替完成。拿到 Token 后执行：
+
+```powershell
+cd top1_cloud\worker
+wrangler deploy
+wrangler secret put GH_TOKEN
+```
+
+### 并发与节拍
+
+`cloud.yml` 已有 `concurrency: group: top1-cloud / cancel-in-progress: false`，因此每 2 分钟的触发不会并发执行，
+只会串行排队；单轮约 60–90 秒，关机期间的接管间隔实际为 2–3 分钟。
+
