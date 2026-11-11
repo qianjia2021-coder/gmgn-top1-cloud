@@ -5,6 +5,33 @@ on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '只打印将推送的消息，不发送、不写状态'
+        required: false
+        default: '0'
+        type: choice
+        options: ['0', '1']
+      self_test:
+        description: '只发一条 Telegram 自检消息，不取数'
+        required: false
+        default: '0'
+        type: choice
+        options: ['0', '1']
+      diag:
+        description: '输出链块头名与全局前三，用于核对取榜口径'
+        required: false
+        default: '0'
+        type: choice
+        options: ['0', '1']
+      force_takeover:
+        description: '忽略心跳、强制走接管路径（HB_STALE=0）'
+        required: false
+        default: '0'
+        type: choice
+        options: ['0', '1']
+
+run-name: "top1-cloud | dry=${{ inputs.dry_run || '0' }} test=${{ inputs.self_test || '0' }} diag=${{ inputs.diag || '0' }}"
 
 concurrency:
   group: top1-cloud
@@ -24,8 +51,10 @@ jobs:
         with:
           node-version: '20'
 
+      # gmgn-cli 未固定版本，每次运行都会拉 npm 最新版；接口变动会直接影响取榜。
+      # 需要完全可复现时，请在此处改成已确认过的具体版本号。
       - name: 安装 gmgn-cli
-        run: npm install -g gmgn-cli
+        run: npm install -g gmgn-cli --no-audit --no-fund
 
       - name: 写入 GMGN 配置
         env:
@@ -43,6 +72,23 @@ jobs:
       - name: 安装依赖
         run: pip install --quiet telethon requests
 
+      - name: 检查必需 Secrets（只检查存在性，不打印值）
+        env:
+          GMGN_API_KEY: ${{ secrets.GMGN_API_KEY }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+        run: |
+          missing=0
+          for n in GMGN_API_KEY TG_API_ID TG_API_HASH TG_STRING_SESSION; do
+            if [ -z "$(printenv "$n")" ]; then
+              echo "缺少必需 secret: $n"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then exit 1; fi
+          echo "必需 Secrets 均已配置"
+
       - name: 运行监控
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,5 +97,9 @@ jobs:
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
           TG_CHAT_ID: '-5589667040'
-          HB_STALE: '180'
+          HB_STALE: "${{ inputs.force_takeover == '1' && '0' || '180' }}"
+          DRY_RUN: "${{ inputs.dry_run || '0' }}"
+          SELF_TEST: "${{ inputs.self_test || '0' }}"
+          TOP1_DIAG: "${{ inputs.diag || '0' }}"
+          PYTHONUNBUFFERED: '1'
         run: python cloud_top1.py
