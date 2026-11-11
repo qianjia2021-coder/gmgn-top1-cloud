@@ -167,8 +167,8 @@
   "ok": false,
   "id": "",
   "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
-  "attempts": 2,
-  "ts": 1794430758
+  "attempts": 3,
+  "ts": 1794430825
  },
  "0x09dcb7611dedacca88b61d19f5b467d1d521fb2c": {
   "addr": "0x09dcb7611dedacca88b61d19f5b467d1d521fb2c",
