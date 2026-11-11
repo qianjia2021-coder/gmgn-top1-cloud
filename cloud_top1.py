@@ -264,6 +264,16 @@ def load_state():
 
 
 def main():
+    if os.environ.get("SELF_TEST") == "1":
+        try:
+            msg_id = asyncio.run(send_message(
+                "云端自检：Telegram 会话可用 {}".format(time.strftime("%Y-%m-%d %H:%M:%S"))))
+            log("自检发送成功 msg_id={}".format(msg_id))
+            return 0
+        except Exception as e:
+            log("自检发送失败：{} {}".format(type(e).__name__, str(e)[:200]))
+            return 1
+
     if local_online():
         log("本机在线，云端本轮不接管")
         return 0
