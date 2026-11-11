@@ -95,8 +95,8 @@
   "ok": false,
   "id": "",
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 4,
-  "ts": 1794421828
+  "attempts": 5,
+  "ts": 1794421963
  },
  "0xd7ae9dc23d2e261454f548388d631bdff6a27777": {
   "addr": "0xd7ae9dc23d2e261454f548388d631bdff6a27777",
