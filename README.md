@@ -38,3 +38,29 @@ GMGN「热搜·全部链」总榜第一名 → Telegram 群「GMGN热搜」（`-
 - 云端接管后的推送延迟由 5–10 秒级降到 20–30 秒级（只有 API 源）。
 - 切换空洞 = 心跳过期阈值 + 触发间隔，最差约 3–8 分钟。
 - 本机与云端的 `pushed` 靠文件合并，切换前后 1–2 分钟内理论上仍可能重复一次。
+
+## 配置方式（实测）
+
+`gmgn-cli config --apply` 会要求 `~/.config/gmgn/keypair.pem` 存在，且用本地密钥对校验 API Key，
+Actions 里既没有密钥对也会被判定不匹配。**正确做法是直接写配置文件**，不执行 `--apply`：
+
+```bash
+mkdir -p ~/.config/gmgn
+printf 'GMGN_API_KEY=%s\n' "$GMGN_API_KEY" > ~/.config/gmgn/.env
+```
+
+只写 `.env` 时 `market hot-searches` 可正常取数（本地隔离目录实测通过），不需要 keypair。
+
+## 调试开关（仅用于验证，日常不要开）
+
+| 环境变量 | 作用 |
+|---|---|
+| `HB_STALE=0` | 强制云端忽略心跳、走接管路径 |
+| `DRY_RUN=1` | 只打印将推送的消息，不实际发送、不写 `pushed` |
+| `SELF_TEST=1` | 只发一条自检消息到 `TG_CHAT_ID` 指向的会话，不取数 |
+
+验证记录（2026-11-11）：
+- 心跳新鲜场景：`[00:52:59] 本机心跳龄 43 秒（阈值 180 秒）` → `本机在线，云端本轮不接管`。
+- 接管场景：`榜首 sol 4CxjZyMNoF1p6eXHXHv1TWpS2X47CuUmLwtGe18spump visit=986.0（链块 10 个）` → `已推过，跳过`。
+- 发送链路：`SELF_TEST` 发到私聊，`msg_id=431379`，群未被打扰。
+
