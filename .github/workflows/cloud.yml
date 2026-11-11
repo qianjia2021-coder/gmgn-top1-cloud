@@ -97,7 +97,7 @@ jobs:
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
           TG_CHAT_ID: '-5589667040'
-          HB_STALE: "${{ inputs.force_takeover == '1' && '0' || '180' }}"
+          HB_STALE: "${{ inputs.force_takeover == '1' && '0' || '120' }}"
           DRY_RUN: "${{ inputs.dry_run || '0' }}"
           SELF_TEST: "${{ inputs.self_test || '0' }}"
           TOP1_DIAG: "${{ inputs.diag || '0' }}"
