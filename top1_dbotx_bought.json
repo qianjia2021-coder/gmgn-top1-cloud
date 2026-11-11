@@ -79,5 +79,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 5,
   "ts": 1794420747
+ },
+ "7j2kf4knfq4xbuq8nctxvnxgauxbnusgc4wt4jrbqzcb": {
+  "addr": "7j2kf4KnfQ4xBuQ8NctxVnXGAUxBNUSgc4wT4jrbqZcb",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794421258
  }
 }
