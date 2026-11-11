@@ -61,5 +61,14 @@
   "err": "chain 未接入 dbotx：base",
   "attempts": 5,
   "ts": 1794416303
+ },
+ "0x67f79c69f14e4803e20bfe0ca037ef9832df7777": {
+  "addr": "0x67f79c69f14e4803e20bfe0ca037ef9832df7777",
+  "chain": "bsc",
+  "ok": false,
+  "id": "",
+  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
+  "attempts": 1,
+  "ts": 1794419445
  }
 }
