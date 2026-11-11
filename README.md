@@ -6,7 +6,7 @@ GMGN「热搜·全部链」总榜第一名 → Telegram 群「GMGN热搜」（`-
 
 - 本地（Windows）跑 `top1_bsc_push.py`：网页源优先（5–10 秒级）+ API 源兜底，这是主运行方。
 - 本仓库：只跑 API 源（`gmgn-cli market hot-searches`，约 20 秒级），**只在本地心跳过期时接管**。
-- 互斥靠 `top1_heartbeat.json`：本地推送器每 60 秒写一次 `ts`，云端每轮先读，`age < HB_STALE(180s)` 就整轮跳过。
+- 互斥靠 `top1_heartbeat.json`：本地推送器每 60 秒写一次 `ts`，云端每轮先读，`age < HB_STALE(120s)` 就整轮跳过。
   不互斥的话两端会抢同一个 GMGN API 漏桶（权重 3，Free 5/5），并且可能对同一合约各推一次。
 
 ## 状态文件
@@ -155,7 +155,7 @@ cd /home/user/gmgn_top1_cron && setsid nohup python3 cron.py >/dev/null 2>&1 < /
 | 生产地址 | `https://gmgn-top1-cron.qianjia2021.workers.dev` |
 | 定时 | `*/2 * * * *`（每 2 分钟） |
 | Version ID | `8554df79-9bdf-41cb-8708-24f8654162c8` |
-| 环境变量 | `HB_STALE=180` |
+| 环境变量 | `HB_STALE=120` |
 | 密钥 | `GH_TOKEN`（GitHub PAT，仅存于 Worker secret，不落仓库文件） |
 | 账号 | 与历史的 `onchain-alpha-cron` 同账号，但 Worker 与 secret 完全独立 |
 
@@ -184,6 +184,45 @@ GET https://gmgn-top1-cron.qianjia2021.workers.dev?force=1
 ```
 
 即「Worker 定时器真正触发 → 云端收到并执行 → 因本机心跳新鲜而正确跳过 → 未发消息」四件事同时成立。
+
+### 真接管验证（2026-11-11 10:48–10:53）
+
+`force=1` 只证明「能触发」，不能证明「关机后真的会接」。为此做了一次断心跳实测：
+停掉本机 `cloud_sync.py`（心跳停写），推送器继续跑，观察 Worker 是否自主触发、云端是否真的接管。
+
+时间线：
+
+| 时刻（本地） | 事件 |
+|---|---|
+| 10:48:04 | 停掉 `cloud_sync`，远端心跳不再更新（最后一次写于 10:47:14） |
+| 10:52:04 | Worker 自主触发（无人工干预），run `42948902734` |
+| 10:52:19 | 云端判定离线并接管 |
+
+该轮云端日志：
+
+```
+[02:52:19] 本机心跳龄 305 秒（阈值 180 秒）
+[02:52:19] 榜首：sol 4CxjZyMNoF1p6eXHXHv1TWpS2X47CuUmLwtGe18spump visit=1040.0（链块 10 个）
+[02:52:20] 已推过（推送前复核），跳过：sol 4CxjZyMNoF1p6e...pump
+```
+
+判定离线、取到真实榜单、算出全局榜首、去重复核后跳过，四件事在真接管路径上全部走通，
+且没有重发已推过的合约（该合约 08:00 已推）。
+
+**实测空洞 4 分 15 秒**，由三段叠加造成：最后一次成功心跳在停写前 50 秒 + 阈值 180 秒 + Worker 2 分钟节拍错过一个窗口。
+
+### 阈值调优（180s → 120s）
+
+以上实测暴露空洞偏长，故两端阈值统一改为 120 秒：
+
+| 位置 | 改动 |
+|---|---|
+| `worker/wrangler.toml` | `HB_STALE = "120"`，重新部署后 Version ID `c47d86cf-8584-465b-9906-813d13e676f9` |
+| `cloud_top1.py` | `HB_STALE` 默认值 120（与 Worker 端保持一致，避免 Worker 触发后云端因阈值更高而误判在线又跳过） |
+
+调整后理论空洞：最长约 `60(心跳间隔) + 120(阈值) + 120(Worker 节拍) ≈ 4分钟`，典型 2.5–3.5 分钟。
+代价：本机网络抖动导致心跳晚写超过 2 分钟时，Worker 会多触发一轮，云端看到新鲜心跳即跳过，
+只消耗一次 Actions 配额，不会误发消息。
 
 维护命令：
 
