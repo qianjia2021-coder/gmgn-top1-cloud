@@ -97,5 +97,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 3,
   "ts": 1794421713
+ },
+ "0xd7ae9dc23d2e261454f548388d631bdff6a27777": {
+  "addr": "0xd7ae9dc23d2e261454f548388d631bdff6a27777",
+  "chain": "bsc",
+  "ok": false,
+  "id": "",
+  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
+  "attempts": 1,
+  "ts": 1794421739
  }
 }
