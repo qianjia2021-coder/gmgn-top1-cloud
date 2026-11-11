@@ -85,6 +85,7 @@ DBOTX_STOP_EARN = 0.5
 DBOTX_SLIPPAGE = 0.5
 DBOTX_MAX_RETRY = 5
 DBOTX_BOUGHT_PATH = "top1_dbotx_bought.json"
+DBOTX_SELFTEST = os.environ.get("DBOTX_SELFTEST", "") == "1"
 
 CHAIN_RE = re.compile(r"^[a-z0-9]{2,16}$")
 ADDR_RE = re.compile(r"^(?:0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
@@ -506,6 +507,12 @@ def remote_pushed_set():
 
 
 def main():
+    if DBOTX_SELFTEST:
+        # 只验鉴权与连通性：用永不存在的 pair，不会产生模拟仓位
+        ok, info = dbotx_buy("sol", "11111111111111111111111111111111")
+        log("dbotx 自检 key_len={} ok={} info={}".format(len(DBOTX_API_KEY), ok, info))
+        return 0 if "pair not found" in info else 1
+
     if SELF_TEST:
         try:
             msg_id = asyncio.run(send_message(
