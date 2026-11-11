@@ -106,5 +106,14 @@
   "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
   "attempts": 1,
   "ts": 1794421739
+ },
+ "8btjdvtg1xpup4gsaxvkcrrbg4mrehhn5ayfy9yapump": {
+  "addr": "8bTJDVTG1xPuP4GsaXVKCRrbG4mRehhn5AyFy9yapump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794421749
  }
 }
