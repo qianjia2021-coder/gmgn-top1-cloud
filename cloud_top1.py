@@ -38,6 +38,7 @@ HB_PATH = "top1_heartbeat.json"
 TG_CHAT = int(os.environ.get("TG_CHAT_ID", "-5589667040"))
 HB_STALE = int(os.environ.get("HB_STALE", "180"))
 LIMIT = int(os.environ.get("LIMIT", "30"))
+DRY_RUN = os.environ.get("DRY_RUN", "") not in ("", "0", "false", "False")
 GH_API = "https://api.github.com"
 
 CHAIN_RE = re.compile(r"^[a-z0-9]{2,16}$")
@@ -298,6 +299,10 @@ def main():
 
     info = info_from_token(t)
     msg = build_message(chain, address, info)
+    if DRY_RUN:
+        log("[DRY] 云端将推送以下内容（本轮不实际发送、不写入 pushed）")
+        print(msg, flush=True)
+        return 0
     try:
         msg_id = asyncio.run(send_message(msg))
     except Exception as e:
