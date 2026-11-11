@@ -30,8 +30,14 @@ on:
         default: '0'
         type: choice
         options: ['0', '1']
+      dbotx_test:
+        description: '只探测 dbotx 鉴权（无效 pair，不下单）'
+        required: false
+        default: '0'
+        type: choice
+        options: ['0', '1']
 
-run-name: "top1-cloud | dry=${{ inputs.dry_run || '0' }} test=${{ inputs.self_test || '0' }} diag=${{ inputs.diag || '0' }}"
+run-name: "top1-cloud | dry=${{ inputs.dry_run || '0' }} test=${{ inputs.self_test || '0' }} diag=${{ inputs.diag || '0' }} bot=${{ inputs.dbotx_test || '0' }}"
 
 concurrency:
   group: top1-cloud
@@ -102,5 +108,6 @@ jobs:
           SELF_TEST: "${{ inputs.self_test || '0' }}"
           TOP1_DIAG: "${{ inputs.diag || '0' }}"
           DBOTX_API_KEY: ${{ secrets.DBOTX_API_KEY }}
+          DBOTX_SELFTEST: "${{ inputs.dbotx_test || '0' }}"
           PYTHONUNBUFFERED: '1'
         run: python cloud_top1.py
