@@ -151,5 +151,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794427949
+ },
+ "djtanzw3qhc575sdkblngd3todvyr9zxhdu9zt49pump": {
+  "addr": "DJTAnZW3Qhc575sdkBLnGd3toDvYr9zxhdU9ZT49pump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
+  "attempts": 1,
+  "ts": 1794428209
  }
 }
