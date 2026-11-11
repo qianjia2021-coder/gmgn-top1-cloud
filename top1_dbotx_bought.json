@@ -86,8 +86,8 @@
   "ok": false,
   "id": "",
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 4,
-  "ts": 1794421590
+  "attempts": 5,
+  "ts": 1794421707
  },
  "8ap8cp2zwdqgidujjxngt2omzusqhyzkwdxwqnncpump": {
   "addr": "8AP8cp2ZwdqgiDUjjXnGT2omzUsqhYzkWDxWQnncpump",
