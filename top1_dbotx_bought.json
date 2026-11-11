@@ -52,5 +52,14 @@
   "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
   "attempts": 5,
   "ts": 1794414523
+ },
+ "0x3441e8fcdd380c4e7f5c7f55ccd599b2a2afcccc": {
+  "addr": "0x3441e8fcdd380c4e7f5c7f55ccd599b2a2afcccc",
+  "chain": "base",
+  "ok": false,
+  "id": "",
+  "err": "chain 未接入 dbotx：base",
+  "attempts": 1,
+  "ts": 1794415826
  }
 }
