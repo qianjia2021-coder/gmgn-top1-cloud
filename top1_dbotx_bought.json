@@ -142,5 +142,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 5,
   "ts": 1794425907
+ },
+ "eyx9nak8nnfc55dvre8hv6pu5hgcclsunvsasqa4pump": {
+  "addr": "EYX9NaK8NnFc55dvRE8Hv6pu5HgCCLsunvsAsqa4pump",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwck2gk80x807f",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794427949
  }
 }
