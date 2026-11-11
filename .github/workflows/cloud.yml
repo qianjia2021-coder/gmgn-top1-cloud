@@ -27,18 +27,14 @@ jobs:
       - name: 安装 gmgn-cli
         run: npm install -g gmgn-cli
 
-      - name: 还原 gmgn 密钥对
-        env:
-          GMGN_KEYPAIR_PEM: ${{ secrets.GMGN_KEYPAIR_PEM }}
-        run: |
-          mkdir -p "$HOME/.config/gmgn"
-          printf '%s\n' "$GMGN_KEYPAIR_PEM" > "$HOME/.config/gmgn/keypair.pem"
-          chmod 600 "$HOME/.config/gmgn/keypair.pem"
-
-      - name: 配置 GMGN API Key
+      - name: 写入 GMGN 配置
         env:
           GMGN_API_KEY: ${{ secrets.GMGN_API_KEY }}
-        run: gmgn-cli config --apply "$GMGN_API_KEY"
+        run: |
+          mkdir -p "$HOME/.config/gmgn"
+          printf 'GMGN_API_KEY=%s\n' "$GMGN_API_KEY" > "$HOME/.config/gmgn/.env"
+          chmod 600 "$HOME/.config/gmgn/.env"
+          gmgn-cli config --check || true
 
       - uses: actions/setup-python@v5
         with:
