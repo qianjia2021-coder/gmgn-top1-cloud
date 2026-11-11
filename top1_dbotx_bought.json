@@ -86,7 +86,7 @@
   "ok": false,
   "id": "",
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 1,
-  "ts": 1794421258
+  "attempts": 2,
+  "ts": 1794421349
  }
 }
