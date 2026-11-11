@@ -178,5 +178,14 @@
   "err": "chain 未接入 dbotx：eth",
   "attempts": 1,
   "ts": 1794430684
+ },
+ "htksi76b481vtpe1ssydb8gkrcl3eeavsdeh8sbrpump": {
+  "addr": "HtKSi76B481vtpE1Ssydb8gKrcL3eeaVSDeh8sbRpump",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwclsomo0x9jpb",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794430850
  }
 }
