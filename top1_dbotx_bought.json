@@ -115,5 +115,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 5,
   "ts": 1794422429
+ },
+ "cgedt9qzdvvh5gmvkwjh2bximjqmjysc9ihwyr7spump": {
+  "addr": "CGEDT9QZDvvH5GmVkWJH2BXiMJqMJySC9ihWyr7Spump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
+  "attempts": 1,
+  "ts": 1794422683
  }
 }
