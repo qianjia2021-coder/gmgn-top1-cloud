@@ -101,5 +101,6 @@ jobs:
           DRY_RUN: "${{ inputs.dry_run || '0' }}"
           SELF_TEST: "${{ inputs.self_test || '0' }}"
           TOP1_DIAG: "${{ inputs.diag || '0' }}"
+          DBOTX_API_KEY: ${{ secrets.DBOTX_API_KEY }}
           PYTHONUNBUFFERED: '1'
         run: python cloud_top1.py
