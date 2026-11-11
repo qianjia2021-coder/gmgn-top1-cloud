@@ -29,6 +29,7 @@ Env:
   DRY_RUN             只打印将推送的消息，不发送、不写状态
   SELF_TEST           只发一条自检消息，不取数
   TOP1_DIAG           输出链块头名与全局前三，供验证轮核对口径
+  DBOTX_API_KEY       dbotx 模拟器 API Key；配置后每笔推送成功即在模拟盘买入
 
 本轮优化：
   - 取榜从「每链块取头名再比较」改为「全局摊平降序」，与本机采集端对齐；
@@ -66,6 +67,24 @@ DRY_RUN = os.environ.get("DRY_RUN", "") not in ("", "0", "false", "False")
 SELF_TEST = os.environ.get("SELF_TEST", "") == "1"
 TOP1_DIAG = os.environ.get("TOP1_DIAG", "") in ("1", "true", "True")
 GH_API = "https://api.github.com"
+
+# ---------------------------------------------------------------- dbotx 模拟买入
+# 用户规则（2026-11-11 起）：凡推送成功的合约，同步在 dbotx 模拟器买入
+# SOL 链 1 SOL / BSC 链 1 BNB，止盈 +50% 触发后全部卖出（stopEarnPercent=0.5）。
+# 云端只在真正推送成功后买；DRY 轮不买。买入记录写远端 top1_dbotx_bought.json，
+# 与本机 top1_dbotx_bought.json 各自独立（两端推送的合约本就不重叠）。
+DBOTX_API_KEY = os.environ.get("DBOTX_API_KEY", "").strip()
+DBOTX_SWAP_URL = "https://api-bot-v1.dbotx.com/simulator/sim_swap_order"
+DBOTX_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+DBOTX_CHAIN = {           # gmgn 链名 -> (dbotx chain 名, 买入数量)
+    "sol": ("solana", 1.0),
+    "bsc": ("bsc", 1.0),
+}
+DBOTX_STOP_EARN = 0.5
+DBOTX_SLIPPAGE = 0.5
+DBOTX_MAX_RETRY = 5
+DBOTX_BOUGHT_PATH = "top1_dbotx_bought.json"
 
 CHAIN_RE = re.compile(r"^[a-z0-9]{2,16}$")
 ADDR_RE = re.compile(r"^(?:0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
@@ -157,6 +176,104 @@ def write_remote_merged(path, merge, msg, max_attempts=3):
         return None
     log("状态写入连续 {} 次未成功".format(max_attempts))
     return None
+
+
+# ---------------------------------------------------------------- dbotx 模拟买入
+def dbotx_buy(chain, address):
+    """模拟器买入：SOL 1 / BNB 1，止盈 +50% 全卖。返回 (ok, order_id_or_err)。
+
+    地址必须原样传（SOL 的 Base58 大小写敏感，转小写会变成另一个地址）。
+    """
+    cfg = DBOTX_CHAIN.get(chain)
+    if not cfg:
+        return False, "chain 未接入 dbotx：{}".format(chain)
+    if not DBOTX_API_KEY:
+        return False, "缺少 DBOTX_API_KEY"
+    payload = {
+        "chain": cfg[0],
+        "pair": address,
+        "walletId": "",
+        "type": "buy",
+        "amountOrPercent": cfg[1],
+        "stopEarnPercent": DBOTX_STOP_EARN,
+        "stopLossPercent": None,
+        "priorityFee": "",
+        "gasFeeDelta": 5,
+        "maxFeePerGas": 100,
+        "slippage": DBOTX_SLIPPAGE,
+    }
+    headers = {
+        "X-API-KEY": DBOTX_API_KEY,
+        "Content-Type": "application/json",
+        "accept": "application/json",
+        "User-Agent": DBOTX_UA,
+        "Origin": "https://dbotx.com",
+        "Referer": "https://dbotx.com/",
+    }
+    try:
+        r = requests.post(DBOTX_SWAP_URL, headers=headers, json=payload, timeout=20)
+        data = r.json()
+    except Exception as e:
+        return False, "{} {}".format(type(e).__name__, str(e)[:160])
+    if isinstance(data, dict) and data.get("err") is False:
+        res = data.get("res") or {}
+        return True, str(res.get("id") or res.get("orderId") or "")
+    return False, str(data)[:200]
+
+
+def record_buy(address, chain, ok, info):
+    """把买入结果并集写回远端记录；attempts 自增，供补买判断是否已达上限。"""
+    addr_l = address.lower()
+
+    def merge(remote):
+        base = dict(remote) if isinstance(remote, dict) else {}
+        rec = base.get(addr_l)
+        rec = dict(rec) if isinstance(rec, dict) else {}
+        rec.update({"addr": address, "chain": chain, "ok": ok,
+                    "id": info if ok else "", "err": "" if ok else info,
+                    "attempts": int(rec.get("attempts") or 0) + 1,
+                    "ts": int(time.time())})
+        base[addr_l] = rec
+        return base
+
+    return write_remote_merged(DBOTX_BOUGHT_PATH, merge, "dbotx buy record [skip ci]")
+
+
+def buy_after_push(chain, address):
+    """推送成功后买入；失败只记录并等待补买，不影响推送主流程。"""
+    ok, info = dbotx_buy(chain, address)
+    unit = "SOL" if chain == "sol" else "BNB"
+    if ok:
+        log("dbotx 买入成功：{} {} 1 {}（止盈 +50% 全卖）order={}".format(
+            chain, address, unit, info))
+    else:
+        log("dbotx 买入失败：{} {} | {}".format(chain, address, info))
+    if record_buy(address, chain, ok, info) is None:
+        log("警告：dbotx 买入记录未写回远端（不影响推送，但下一轮补买看不到这笔）")
+    return ok
+
+
+def retry_buys(limit=2):
+    """补买远端记录里失败且未到重试上限的单，每轮最多 limit 笔。"""
+    try:
+        bought, _ = read_remote(DBOTX_BOUGHT_PATH)
+    except Exception as e:
+        log("dbotx 记录读取失败：{}".format(type(e).__name__))
+        return
+    if not isinstance(bought, dict):
+        return
+    todo = [(k, v) for k, v in bought.items()
+            if isinstance(v, dict) and not v.get("ok")
+            and int(v.get("attempts") or 0) < DBOTX_MAX_RETRY]
+    for addr_l, rec in todo[:limit]:
+        chain = rec.get("chain") or ""
+        address = rec.get("addr") or addr_l
+        ok, info = dbotx_buy(chain, address)
+        if ok:
+            log("dbotx 补买成功：{} {} order={}".format(chain, address, info))
+        else:
+            log("dbotx 补买失败：{} {} | {}".format(chain, address, info))
+        record_buy(address, chain, ok, info)
 
 
 def local_online():
@@ -407,6 +524,10 @@ def main():
         log("本机在线，云端本轮不接管")
         return 0
 
+    # 补买此前失败的单（DRY 轮不下单，避免验证轮凭空产生仓位）
+    if not DRY_RUN:
+        retry_buys()
+
     try:
         tops, nblocks = fetch_top1()
     except Exception as e:
@@ -469,6 +590,8 @@ def main():
             return 1
         pushed.add(addr_l)
         log("TG 推送成功 msg_id={} | 第 {} 名 {} {}".format(msg_id, rank, chain, address))
+        # 用户规则：推送成功即在 dbotx 模拟盘买入，失败只记录不阻断本轮
+        buy_after_push(chain, address)
 
     if DRY_RUN and first:
         log("DRY 轮结束，未写 pushed、未发消息")
