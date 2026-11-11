@@ -88,5 +88,14 @@
   "err": "{'err': True, 'res': 'pair not found', 'code': None}",
   "attempts": 3,
   "ts": 1794421471
+ },
+ "8ap8cp2zwdqgidujjxngt2omzusqhyzkwdxwqnncpump": {
+  "addr": "8AP8cp2ZwdqgiDUjjXnGT2omzUsqhYzkWDxWQnncpump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794421482
  }
 }
