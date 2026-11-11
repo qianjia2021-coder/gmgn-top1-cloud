@@ -98,7 +98,7 @@ printf 'GMGN_API_KEY=%s\n' "$GMGN_API_KEY" > ~/.config/gmgn/.env
 `pushed_at` 正常，因此不是配置错误，而是 GitHub 对新建/低活动仓库的 schedule 延迟与丢弃。
 后果：本机关机后云端不会自行醒来，「关机接管」在该问题修复前不成立。
 
-### 已启用的方案：云主机常驻定时器（不依赖任何额外账号）
+### 过渡方案：云主机常驻定时器（已停用，见下一节现用方案）
 
 部署位置 `/home/user/gmgn_top1_cron/`，脚本 `cron.py`，凭据 `token`（600 权限）。
 
@@ -142,18 +142,66 @@ cd /home/user/gmgn_top1_cron && setsid nohup python3 cron.py >/dev/null 2>&1 < /
 
 已知限制：云主机的 cron 守护进程无权限启动，因此该进程靠 `nohup` 常驻，**宿主机重启后需要重新执行上面的启动命令**；日志与 pid 文件会保留，便于判断是否掉线。
 
-### 备选方案：Cloudflare Worker（需一次账号授权，尚未部署）
+### 现用方案：Cloudflare Worker（已部署并实测）
 
-`worker/` 目录下已备好 `worker.js` + `wrangler.toml` + `部署说明.md`，逻辑同上（每 2 分钟检查心跳，过期才 dispatch），
-Worker 名 `gmgn-top1-cron`，与历史的 `onchain-alpha-cron` 完全独立。部署需要一个 Cloudflare API Token
-（模板 `Edit Cloudflare Workers`）与 Account ID，`wrangler` 已安装（4.160.0）。
+云主机进程只能在沙箱存活期内有效（沙箱重启后 cron 守护起不来、`nohup` 进程不会自恢复），
+因此正式调度器改为 Cloudflare Worker，它不依赖任何常驻机器。
 
-尚未部署的原因：Cloudflare OAuth 授权需要登录账号，无法由脚本代替完成。拿到 Token 后执行：
+部署记录（2026-11-11）：
+
+| 项 | 值 |
+|---|---|
+| Worker 名 | `gmgn-top1-cron` |
+| 生产地址 | `https://gmgn-top1-cron.qianjia2021.workers.dev` |
+| 定时 | `*/2 * * * *`（每 2 分钟） |
+| Version ID | `8554df79-9bdf-41cb-8708-24f8654162c8` |
+| 环境变量 | `HB_STALE=180` |
+| 密钥 | `GH_TOKEN`（GitHub PAT，仅存于 Worker secret，不落仓库文件） |
+| 账号 | 与历史的 `onchain-alpha-cron` 同账号，但 Worker 与 secret 完全独立 |
+
+行为验证：
+
+```
+GET https://gmgn-top1-cron.qianjia2021.workers.dev
+{"ok":true,"repo":"qianjia2021-coder/gmgn-top1-cloud","workflow_id":414008272,
+ "heartbeat_age_sec":8,"stale_threshold_sec":180,"would_dispatch":false}
+```
+
+本机在线时 `would_dispatch=false`，即不消耗 Actions。
+
+强制触发验证（`?force=1`）：
+
+```
+GET https://gmgn-top1-cron.qianjia2021.workers.dev?force=1
+{"dispatched":true,"heartbeat_age":17}
+```
+
+产生 run `42943428664`（`workflow_dispatch`，success），该轮云端日志：
+
+```
+[02:04:37] 本机心跳龄 33 秒（阈值 180 秒）
+[02:04:37] 本机在线，云端本轮不接管
+```
+
+即「Worker 定时器真正触发 → 云端收到并执行 → 因本机心跳新鲜而正确跳过 → 未发消息」四件事同时成立。
+
+维护命令：
 
 ```powershell
 cd top1_cloud\worker
-wrangler deploy
-wrangler secret put GH_TOKEN
+wrangler deploy                 # 改 worker.js 后重新部署
+wrangler secret put GH_TOKEN    # 换 PAT
+wrangler tail                   # 实时看 cron 日志
+```
+
+### 云主机定时器（已停用，仅留档）
+
+`/home/user/gmgn_top1_cron/` 内的 `cron.py` 与 `token` 仍保留，进程已于 2026-11-11 10:05 停止，
+`crontab` 中的自愈条目也已清除，避免与 Worker 每 2 分钟同时触发造成 Actions 队列翻倍。
+需要临时启用时：
+
+```bash
+cd /home/user/gmgn_top1_cron && setsid nohup python3 cron.py >/dev/null 2>&1 < /dev/null &
 ```
 
 ### 并发与节拍
