@@ -124,5 +124,14 @@
   "err": "",
   "attempts": 2,
   "ts": 1794422786
+ },
+ "2pzkvwbyn7fsbxhyrnbkgo9mcn8cwya6wpylmrjppump": {
+  "addr": "2pzKvWbYN7fSBxhYrnBKgo9mCN8cWyA6wPYLMrJppump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794424112
  }
 }
