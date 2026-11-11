@@ -50,7 +50,6 @@ jobs:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
-          TG_CHAT_ID: '5472639565'
-          HB_STALE: '0'
-          SELF_TEST: '1'
+          TG_CHAT_ID: '-5589667040'
+          HB_STALE: '180'
         run: python cloud_top1.py
