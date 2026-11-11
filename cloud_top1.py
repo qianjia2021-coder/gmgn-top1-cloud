@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-GMGN 热搜·全部链 总榜第一名 -> Telegram 群（云端独立实例）
+GMGN 热搜·全部链 前三名 -> Telegram 群（云端独立实例）
 
 与本机 top1_bsc_push.py 同一业务口径，但只跑 API 源（gmgn-cli market hot-searches）：
-- 一次请求返回多个链块；把所有链块的全部 token 摊平，按 visiting_count 降序取第一名。
+- 一次请求返回多个链块；把所有链块的全部 token 摊平，按 visiting_count 降序取前 3 名。
   这与本机 hot_api_monitor.py 的 fetch() 完全一致，消除了两端「取榜算法不同」的差异。
+- 前 3 名逐个检查：哪个还没推过就推哪个；一轮最多推 3 条，同一条不会重复。
 - 一个合约永久只推一次（pushed 集合，与本地 top1_seen.json 同构、双向合并）。
-- 记录「首次观测到第一」的时间戳（top1_first_at）。
+  掉出前三再回来也不再推。
+- 记录「首次进入前三」的时间戳（top1_first_at）。
 - 每次运行前先读本机心跳，本机在线（心跳新鲜）则整轮跳过。
 
 口径边界（必须如实说明）：
@@ -259,7 +261,7 @@ def fetch_top1():
         for x in flat[:3]:
             log("  全局前三 {:<12} visit={:<8} addr={}".format(
                 x["chain"], x["visiting_count"], str(x["token"].get("address") or "")[:14]))
-    return best, len(blocks)
+    return flat[:3], len(blocks)
 
 
 # ---------------------------------------------------------------- 消息
@@ -314,11 +316,11 @@ def esc(v):
     return html.escape(str(v if v is not None else ""), quote=True)
 
 
-def build_message(chain, address, info):
+def build_message(chain, address, info, rank=1):
     url = "https://gmgn.ai/{}/token/{}".format(
         urllib.parse.quote(chain, safe=""), urllib.parse.quote(address, safe=""))
     lines = [
-        "🔥 <b>热搜·全部链 第 1 名</b>",
+        "🔥 <b>热搜·全部链 第 {} 名</b>".format(rank),
         "",
         "名称：<b>{}</b>".format(esc(info.get("name") or "-")),
         "链：<b>{}</b>".format(esc(chain.upper())),
@@ -406,18 +408,10 @@ def main():
         return 0
 
     try:
-        best, nblocks = fetch_top1()
+        tops, nblocks = fetch_top1()
     except Exception as e:
         log("取榜失败：{} {}".format(type(e).__name__, str(e)[:200]))
         return 1
-    chain, t = best["chain"], best["token"]
-    address = str(t.get("address") or "").strip()
-    if not CHAIN_RE.match(chain) or not ADDR_RE.match(address):
-        log("榜首字段不合法，跳过：chain={} addr={}".format(chain, address[:20]))
-        return 1
-    addr_l = address.lower()
-    log("榜首：{} {} visit={}（链块 {} 个）".format(
-        chain, address, best["visiting_count"], nblocks))
 
     state, _ = load_state()
     if state is None:
@@ -425,52 +419,60 @@ def main():
         return 1
     pushed, first = state["pushed"], state["top1_first_at"]
 
-    # 推送前二次确认：cloud_sync 可能在取榜期间把本机刚推的地址合并进云端。
-    rp, _ = remote_pushed_set()
-    if rp is None:
-        log("推送前状态复核不可读，本轮不推送（宁可漏一轮，不可重复推）")
-        return 1
-    if addr_l in rp:
-        log("已推过（推送前复核），跳过：{} {}".format(chain, address))
-        return 0
+    rc = 0
+    for idx, best in enumerate(tops):
+        rank = idx + 1
+        chain, t = best["chain"], best["token"]
+        address = str(t.get("address") or "").strip()
+        if not CHAIN_RE.match(chain) or not ADDR_RE.match(address):
+            log("第 {} 名字段不合法，跳过：chain={} addr={}".format(rank, chain, address[:20]))
+            continue
+        addr_l = address.lower()
+        log("第 {} 名：{} {} visit={}（链块 {} 个）".format(
+            rank, chain, address, best["visiting_count"], nblocks))
 
-    changed = False
-    if addr_l not in first:
-        first[addr_l] = int(time.time())
-        changed = True
-        log("首次观测登顶：{} {}".format(chain, address))
+        # 推送前二次确认：cloud_sync 可能在取榜期间把本机刚推的地址合并进云端。
+        rp, _ = remote_pushed_set()
+        if rp is None:
+            log("推送前状态复核不可读，本轮停止推送（宁可漏一轮，不可重复推）")
+            return 1
+        if addr_l in rp or addr_l in pushed:
+            log("已推过（推送前复核），跳过：第 {} 名 {} {}".format(rank, chain, address))
+            if addr_l not in pushed:
+                pushed.add(addr_l)
+            continue
 
-    if addr_l in pushed:
-        if changed:
-            write_remote_merged(
-                STATE_PATH,
-                lambda remote: merged_state(remote, first_extra=first),
-                "record first-top1 time [skip ci]")
-        log("已推过，跳过：{} {}".format(chain, address))
-        return 0
+        if addr_l not in first:
+            first[addr_l] = int(time.time())
+            log("首次进入前三：第 {} 名 {} {}".format(rank, chain, address))
 
-    info = info_from_token(t)
-    msg = build_message(chain, address, info)
-    if DRY_RUN:
-        log("[DRY] 本轮不发送、不写入 pushed；以下是将推送的内容")
-        print(msg, flush=True)
-        return 0
-    try:
-        msg_id = asyncio.run(send_message(msg))
-    except Exception as e:
-        log("TG 推送失败：{} {}".format(type(e).__name__, str(e)[:200]))
-        return 1
+        info = info_from_token(t)
+        msg = build_message(chain, address, info, rank)
+        if DRY_RUN:
+            log("[DRY] 第 {} 名不发送、不写 pushed；以下是将推送的内容".format(rank))
+            print(msg, flush=True)
+            continue
+        try:
+            msg_id = asyncio.run(send_message(msg))
+        except Exception as e:
+            log("TG 推送失败（第 {} 名）：{} {}".format(rank, type(e).__name__, str(e)[:200]))
+            rc = 1
+            continue
 
-    new_sha = write_remote_merged(
-        STATE_PATH,
-        lambda remote: merged_state(remote, pushed_extra=(addr_l,), first_extra=first),
-        "push top1 record [skip ci]")
-    if new_sha is None:
-        log("严重：消息已发出 msg_id={} 但去重状态未落盘；下一轮可能重复推送，"
-            "请把 {} 人工补进 top1_state.json 的 pushed".format(msg_id, addr_l))
-        return 1
-    log("TG 推送成功 msg_id={} | {} {}".format(msg_id, chain, address))
-    return 0
+        new_sha = write_remote_merged(
+            STATE_PATH,
+            lambda remote, a=addr_l: merged_state(remote, pushed_extra=(a,), first_extra=first),
+            "push top3 record [skip ci]")
+        if new_sha is None:
+            log("严重：消息已发出 msg_id={} 但去重状态未落盘；下一轮可能重复推送，"
+                "请把 {} 人工补进 top1_state.json 的 pushed".format(msg_id, addr_l))
+            return 1
+        pushed.add(addr_l)
+        log("TG 推送成功 msg_id={} | 第 {} 名 {} {}".format(msg_id, rank, chain, address))
+
+    if DRY_RUN and first:
+        log("DRY 轮结束，未写 pushed、未发消息")
+    return rc
 
 
 if __name__ == "__main__":
