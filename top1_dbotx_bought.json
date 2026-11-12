@@ -128,11 +128,11 @@
  "2pzkvwbyn7fsbxhyrnbkgo9mcn8cwya6wpylmrjppump": {
   "addr": "2pzKvWbYN7fSBxhYrnBKgo9mCN8cWyA6wPYLMrJppump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794424587
+  "ok": true,
+  "id": "mwdc2nui00uiuq",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794474985
  },
  "77hqxidcgyfxusdxdd6yvefphttz1z2n8jx4gtxipump": {
   "addr": "77HqxiDCgYfXUsDXDD6YVefPhTTz1Z2n8jX4gTxipump",
