@@ -110,11 +110,11 @@
  "8btjdvtg1xpup4gsaxvkcrrbg4mrehhn5ayfy9yapump": {
   "addr": "8bTJDVTG1xPuP4GsaXVKCRrbG4mRehhn5AyFy9yapump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794422429
+  "ok": true,
+  "id": "mwdc03il00eq7s",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794474865
  },
  "cgedt9qzdvvh5gmvkwjh2bximjqmjysc9ihwyr7spump": {
   "addr": "CGEDT9QZDvvH5GmVkWJH2BXiMJqMJySC9ihWyr7Spump",
