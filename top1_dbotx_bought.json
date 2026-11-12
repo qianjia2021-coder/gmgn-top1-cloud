@@ -191,11 +191,11 @@
  "5qap7okuqkffwwo5daeqdottsblmpdbqtxekcdatpump": {
   "addr": "5qaP7oKUqKffwwo5DaEqDoTtsBLMpdbQTxEkCDaTpump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794431427
+  "ok": true,
+  "id": "mwdci3pm00gmwi",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794475705
  },
  "fzxhlugigchy5uvvoeqh1ekixtrgdn67wubhuc1float": {
   "addr": "FZxHLUGiGchY5uvvoeqh1EKiXTrGdN67WUBhUc1fLoat",
