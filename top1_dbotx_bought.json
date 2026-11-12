@@ -59,8 +59,8 @@
   "ok": false,
   "id": "",
   "err": "chain 未接入 dbotx：base",
-  "attempts": 5,
-  "ts": 1794416303
+  "attempts": 6,
+  "ts": 1794474022
  },
  "0x67f79c69f14e4803e20bfe0ca037ef9832df7777": {
   "addr": "0x67f79c69f14e4803e20bfe0ca037ef9832df7777",
