@@ -74,11 +74,11 @@
  "eprapo32ll62hqvhqvvvlggwgrujpu9ypumvsqyfork": {
   "addr": "ePraPo32LL62hQVhqVvVLGgWgrUJPU9YpumVsQYfork",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794420747
+  "ok": true,
+  "id": "mwdbkl9y00dx07",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794474141
  },
  "7j2kf4knfq4xbuq8nctxvnxgauxbnusgc4wt4jrbqzcb": {
   "addr": "7j2kf4KnfQ4xBuQ8NctxVnXGAUxBNUSgc4wT4jrbqZcb",
