@@ -83,7 +83,8 @@ DBOTX_CHAIN = {           # gmgn 链名 -> (dbotx chain 名, 买入数量)
 }
 DBOTX_STOP_EARN = 0.5
 DBOTX_SLIPPAGE = 0.5
-DBOTX_MAX_RETRY = 5
+DBOTX_TIMEOUT = 35         # 单次读超时；实测 20 秒在云端出口偶发 ReadTimeout
+DBOTX_MAX_RETRY = 12       # attempts 上限；每轮最多补 2 笔，可跨约 20 轮继续补
 DBOTX_BOUGHT_PATH = "top1_dbotx_bought.json"
 DBOTX_SELFTEST = os.environ.get("DBOTX_SELFTEST", "") == "1"
 
@@ -212,7 +213,8 @@ def dbotx_buy(chain, address):
         "Referer": "https://dbotx.com/",
     }
     try:
-        r = requests.post(DBOTX_SWAP_URL, headers=headers, json=payload, timeout=20)
+        r = requests.post(DBOTX_SWAP_URL, headers=headers, json=payload,
+                          timeout=DBOTX_TIMEOUT)
         data = r.json()
     except Exception as e:
         return False, "{} {}".format(type(e).__name__, str(e)[:160])
