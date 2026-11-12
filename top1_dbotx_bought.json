@@ -65,11 +65,11 @@
  "0x67f79c69f14e4803e20bfe0ca037ef9832df7777": {
   "addr": "0x67f79c69f14e4803e20bfe0ca037ef9832df7777",
   "chain": "bsc",
-  "ok": false,
-  "id": "",
-  "err": "ReadTimeout HTTPSConnectionPool(host='api-bot-v1.dbotx.com', port=443): Read timed out. (read timeout=20)",
-  "attempts": 5,
-  "ts": 1794419919
+  "ok": true,
+  "id": "mwdbi2v000dtnz",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794474024
  },
  "eprapo32ll62hqvhqvvvlggwgrujpu9ypumvsqyfork": {
   "addr": "ePraPo32LL62hQVhqVvVLGgWgrUJPU9YpumVsQYfork",
