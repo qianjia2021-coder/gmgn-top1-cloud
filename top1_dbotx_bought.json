@@ -38,11 +38,11 @@
  "desla3agxjqguztw6qufgv1k64hsjqhpkrfdt1fypump": {
   "addr": "DESLa3aGXJqguzTW6QUFGv1k64hSjQHPkrfdT1fypump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794413186
+  "ok": true,
+  "id": "mwdbfitl00tho4",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794473905
  },
  "ednud65ufwmxp3twgwvq1gtl8qnd2ax3au5ajtdscult": {
   "addr": "EDNud65UFwMxP3TWGWvq1GTL8Qnd2aX3aU5aJtdsCuLt",
