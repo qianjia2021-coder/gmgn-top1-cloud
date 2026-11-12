@@ -268,5 +268,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794527305
+ },
+ "ezympc1477jpzfrh8c8hrrzvfhwq7ukxxbt54cpepump": {
+  "addr": "EZyMpc1477jpZfRh8c8HrRzVFhwq7uKXxBT54cpepump",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwe7869604agn4",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794527310
  }
 }
