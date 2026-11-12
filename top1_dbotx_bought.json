@@ -92,11 +92,11 @@
  "8ap8cp2zwdqgidujjxngt2omzusqhyzkwdxwqnncpump": {
   "addr": "8AP8cp2ZwdqgiDUjjXnGT2omzUsqhYzkWDxWQnncpump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794421963
+  "ok": true,
+  "id": "mwdbv15700eb9d",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794474629
  },
  "0xd7ae9dc23d2e261454f548388d631bdff6a27777": {
   "addr": "0xd7ae9dc23d2e261454f548388d631bdff6a27777",
