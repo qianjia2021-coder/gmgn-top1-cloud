@@ -29,11 +29,11 @@
  "2mp28cjyjxs7qvrwdfxaxf6tl85yrbywhhbhledmpump": {
   "addr": "2MP28cjYJXS7QVrwdfXaXF6TL85yrbYwHhBHLeDMpump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 5,
-  "ts": 1794412828
+  "ok": true,
+  "id": "mwd3xeke00m0bl",
+  "err": "",
+  "attempts": 6,
+  "ts": 1794461302
  },
  "desla3agxjqguztw6qufgv1k64hsjqhpkrfdt1fypump": {
   "addr": "DESLa3aGXJqguzTW6QUFGv1k64hSjQHPkrfdT1fypump",
