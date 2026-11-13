@@ -286,5 +286,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794541221
+ },
+ "2ubwyfuau2jurulg8dty56hzppqcgejtqdwxqfbkqetg": {
+  "addr": "2uBwYfuaU2juRuLG8dty56hzPpqcgejtQDwXqFBKQETg",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwefign40050dy",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794541227
  }
 }
