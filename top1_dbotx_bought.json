@@ -277,5 +277,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794527310
+ },
+ "ftu55myigxns96jz4ntcdditcjyjjyrhscecgg9upump": {
+  "addr": "FTu55MyigXns96jz4nTCDDiTCjYJjyrHSceCgG9Upump",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwefic4h005aiv",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794541221
  }
 }
