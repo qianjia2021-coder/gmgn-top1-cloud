@@ -64,6 +64,11 @@ HB_STALE = int(os.environ.get("HB_STALE", "120"))
 HB_FUTURE_TOLERANCE = 300
 LIMIT = int(os.environ.get("LIMIT", "30"))
 TOP_N = int(os.environ.get("TOP_N", "15"))   # 取多少名参与推送，2026-11-14 与本机对齐为前 15
+
+# 口径（2026-11-15 与本机对齐）：只推 SOL 链、且创建时间在 24 小时内的合约。
+# 名次仍是「全部链」混排榜的全局名次；缺 creation_timestamp 一律跳过，宁可漏推。
+NEW_TOKEN_CHAINS = ("sol",)
+NEW_TOKEN_MAX_AGE = 24 * 3600
 DRY_RUN = os.environ.get("DRY_RUN", "") not in ("", "0", "false", "False")
 SELF_TEST = os.environ.get("SELF_TEST", "") == "1"
 TOP1_DIAG = os.environ.get("TOP1_DIAG", "") in ("1", "true", "True")
@@ -561,6 +566,24 @@ def main():
         addr_l = address.lower()
         log("第 {} 名：{} {} visit={}（链块 {} 个）".format(
             rank, chain, address, best["visiting_count"], nblocks))
+
+        # 口径过滤（与本机同一套常量）：只推 SOL 链 + 创建 24 小时内的合约。
+        # 不满足的既不推、也不写 pushed/first，年龄只会变大，之后不会翻盘。
+        if chain not in NEW_TOKEN_CHAINS:
+            log("口径过滤：第 {} 名 {} 非本轮口径链，跳过".format(rank, chain))
+            continue
+        try:
+            created = int(t.get("creation_timestamp") or 0)
+        except (TypeError, ValueError):
+            created = 0
+        if created <= 0:
+            log("口径过滤：第 {} 名 {} 无创建时间，跳过".format(rank, chain))
+            continue
+        age = time.time() - created
+        if age > NEW_TOKEN_MAX_AGE:
+            log("口径过滤：第 {} 名 {} 已创建 {:.1f}h（上限 24h），跳过".format(
+                rank, chain, age / 3600.0))
+            continue
 
         # 推送前二次确认：cloud_sync 可能在取榜期间把本机刚推的地址合并进云端。
         rp, _ = remote_pushed_set()
