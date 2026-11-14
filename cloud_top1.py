@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-GMGN 热搜·全部链 前五名 -> Telegram 群（云端独立实例）
+GMGN 热搜·全部链 前十五名 -> Telegram 群（云端独立实例）
 
 与本机 top1_bsc_push.py 同一业务口径，但只跑 API 源（gmgn-cli market hot-searches）：
 - 一次请求返回多个链块；把所有链块的全部 token 摊平，按 visiting_count 降序取前 5 名。
   这与本机 hot_api_monitor.py 的 fetch() 完全一致，消除了两端「取榜算法不同」的差异。
 - 前 5 名逐个检查：哪个还没推过就推哪个；一轮最多推 5 条，同一条不会重复。
 - 一个合约永久只推一次（pushed 集合，与本地 top1_seen.json 同构、双向合并）。
-  掉出前五再回来也不再推。
-- 记录「首次进入前五」的时间戳（top1_first_at）。
+  掉出前十五再回来也不再推。
+- 记录「首次进入前十五」的时间戳（top1_first_at）。
 - 每次运行前先读本机心跳，本机在线（心跳新鲜）则整轮跳过。
 
 口径边界（必须如实说明）：
@@ -28,7 +28,7 @@ Env:
   LIMIT               每链取多少条，默认 30（与本机采集端一致）
   DRY_RUN             只打印将推送的消息，不发送、不写状态
   SELF_TEST           只发一条自检消息，不取数
-  TOP1_DIAG           输出链块头名与全局前五，供验证轮核对口径
+  TOP1_DIAG           输出链块头名与全局前十五，供验证轮核对口径
   DBOTX_API_KEY       dbotx 模拟器 API Key；配置后每笔推送成功即在模拟盘买入
 
 本轮优化：
@@ -63,6 +63,7 @@ TG_CHAT = int(os.environ.get("TG_CHAT_ID", "-5589667040"))
 HB_STALE = int(os.environ.get("HB_STALE", "120"))
 HB_FUTURE_TOLERANCE = 300
 LIMIT = int(os.environ.get("LIMIT", "30"))
+TOP_N = int(os.environ.get("TOP_N", "15"))   # 取多少名参与推送，2026-11-14 与本机对齐为前 15
 DRY_RUN = os.environ.get("DRY_RUN", "") not in ("", "0", "false", "False")
 SELF_TEST = os.environ.get("SELF_TEST", "") == "1"
 TOP1_DIAG = os.environ.get("TOP1_DIAG", "") in ("1", "true", "True")
@@ -378,10 +379,10 @@ def fetch_top1():
         for h in heads[:10]:
             log("  链块头名 {:<12} visit={:<8} addr={}".format(
                 h["chain"], h["visiting_count"], str(h["token"].get("address") or "")[:14]))
-        for x in flat[:5]:
-            log("  全局前五 {:<12} visit={:<8} addr={}".format(
+        for x in flat[:10]:
+            log("  全局前十五 {:<12} visit={:<8} addr={}".format(
                 x["chain"], x["visiting_count"], str(x["token"].get("address") or "")[:14]))
-    return flat[:5], len(blocks)
+    return flat[:TOP_N], len(blocks)
 
 
 # ---------------------------------------------------------------- 消息
@@ -574,7 +575,7 @@ def main():
 
         if addr_l not in first:
             first[addr_l] = int(time.time())
-            log("首次进入前五：第 {} 名 {} {}".format(rank, chain, address))
+            log("首次进入前十五：第 {} 名 {} {}".format(rank, chain, address))
 
         info = info_from_token(t)
         msg = build_message(chain, address, info, rank)
@@ -592,7 +593,7 @@ def main():
         new_sha = write_remote_merged(
             STATE_PATH,
             lambda remote, a=addr_l: merged_state(remote, pushed_extra=(a,), first_extra=first),
-            "push top5 record [skip ci]")
+            "push top10 record [skip ci]")
         if new_sha is None:
             log("严重：消息已发出 msg_id={} 但去重状态未落盘；下一轮可能重复推送，"
                 "请把 {} 人工补进 top1_state.json 的 pushed".format(msg_id, addr_l))
