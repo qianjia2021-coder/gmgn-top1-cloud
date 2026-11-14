@@ -619,5 +619,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794693628
+ },
+ "0xdd806e436dda5588bf54061c11590c77ddc87777": {
+  "addr": "0xdd806e436dda5588bf54061c11590c77ddc87777",
+  "chain": "bsc",
+  "ok": true,
+  "id": "mwgybg7h05lose",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794693745
  }
 }
