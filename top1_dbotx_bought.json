@@ -817,5 +817,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794778709
+ },
+ "grq5lcpd7b9smf4v3lzjlbfwnqhdynfwraxq2qtrpump": {
+  "addr": "GrQ5LcpD7b9sMf4v3LZJLbfwnQHdYnfwRAxq2qTRpump",
+  "chain": "sol",
+  "ok": false,
+  "id": "",
+  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
+  "attempts": 1,
+  "ts": 1794779309
  }
 }
