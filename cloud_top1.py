@@ -88,6 +88,9 @@ DBOTX_CHAIN = {           # gmgn 链名 -> (dbotx chain 名, 买入数量)
     "bsc": ("bsc", 1.0),
 }
 DBOTX_STOP_EARN = 0.5
+# 止损（2026-11-15 与本机对齐）：跌幅达 50% 即全部卖出。
+# dbotx 官方口径：stopLossPercent 取 0.00-1.00 正数，0.5 = 跌 50% 卖出（单值模式全卖）。
+DBOTX_STOP_LOSS = 0.5
 DBOTX_SLIPPAGE = 0.5
 DBOTX_TIMEOUT = 35         # 单次读超时；实测 20 秒在云端出口偶发 ReadTimeout
 DBOTX_MAX_RETRY = 12       # attempts 上限；每轮最多补 2 笔，可跨约 20 轮继续补
@@ -204,7 +207,7 @@ def dbotx_buy(chain, address):
         "type": "buy",
         "amountOrPercent": cfg[1],
         "stopEarnPercent": DBOTX_STOP_EARN,
-        "stopLossPercent": None,
+        "stopLossPercent": DBOTX_STOP_LOSS,
         "priorityFee": "",
         "gasFeeDelta": 5,
         "maxFeePerGas": 100,
