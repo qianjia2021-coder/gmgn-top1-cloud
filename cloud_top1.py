@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-GMGN 热搜·全部链 前十五名 -> Telegram 群（云端独立实例）
+GMGN 热搜·全部链 上榜即推 -> Telegram 群（云端独立实例）
 
 与本机 top1_bsc_push.py 同一业务口径，但只跑 API 源（gmgn-cli market hot-searches）：
 - 一次请求返回多个链块；把所有链块的全部 token 摊平，按 visiting_count 降序取前 5 名。
   这与本机 hot_api_monitor.py 的 fetch() 完全一致，消除了两端「取榜算法不同」的差异。
 - 前 5 名逐个检查：哪个还没推过就推哪个；一轮最多推 5 条，同一条不会重复。
 - 一个合约永久只推一次（pushed 集合，与本地 top1_seen.json 同构、双向合并）。
-  掉出前十五再回来也不再推。
+  掉出榜单再回来也不再推。
 - 记录「首次进入前十五」的时间戳（top1_first_at）。
 - 每次运行前先读本机心跳，本机在线（心跳新鲜）则整轮跳过。
 
@@ -63,10 +63,10 @@ TG_CHAT = int(os.environ.get("TG_CHAT_ID", "-5589667040"))
 HB_STALE = int(os.environ.get("HB_STALE", "120"))
 HB_FUTURE_TOLERANCE = 300
 LIMIT = int(os.environ.get("LIMIT", "30"))
-TOP_N = int(os.environ.get("TOP_N", "15"))   # 取多少名参与推送，2026-11-14 与本机对齐为前 15
+TOP_N = int(os.environ.get("TOP_N", "200"))   # 单轮候选上限。2026-11-15 起名次不限前 15（上榜即推），200 覆盖全榜约 160 条
 
-# 口径（2026-11-15 与本机对齐）：只推 SOL 链、且创建时间在 24 小时内的合约。
-# 名次仍是「全部链」混排榜的全局名次；缺 creation_timestamp 一律跳过，宁可漏推。
+# 口径（2026-11-15 与本机对齐）：只推 SOL 链、地址以 pump 结尾、且创建时间在 24 小时内的合约。
+# 名次不再限前 15：只要在「全部链」混排热搜榜里出现即参与；缺 creation_timestamp 一律跳过。
 NEW_TOKEN_CHAINS = ("sol",)
 NEW_TOKEN_MAX_AGE = 24 * 3600
 # SOL 合约地址必须以 pump 结尾（pump.fun 特征，2026-11-15 与本机同一口径）。
@@ -608,7 +608,7 @@ def main():
 
         if addr_l not in first:
             first[addr_l] = int(time.time())
-            log("首次进入前十五：第 {} 名 {} {}".format(rank, chain, address))
+            log("首次上榜：第 {} 名 {} {}".format(rank, chain, address))
 
         info = info_from_token(t)
         msg = build_message(chain, address, info, rank)
