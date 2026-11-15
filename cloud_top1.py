@@ -69,6 +69,9 @@ TOP_N = int(os.environ.get("TOP_N", "15"))   # 取多少名参与推送，2026-1
 # 名次仍是「全部链」混排榜的全局名次；缺 creation_timestamp 一律跳过，宁可漏推。
 NEW_TOKEN_CHAINS = ("sol",)
 NEW_TOKEN_MAX_AGE = 24 * 3600
+# SOL 合约地址必须以 pump 结尾（pump.fun 特征，2026-11-15 与本机同一口径）。
+# Base58 区分大小写，按原样精确匹配小写 pump，不做大小写折叠。
+NEW_TOKEN_SUFFIX = "pump"
 DRY_RUN = os.environ.get("DRY_RUN", "") not in ("", "0", "false", "False")
 SELF_TEST = os.environ.get("SELF_TEST", "") == "1"
 TOP1_DIAG = os.environ.get("TOP1_DIAG", "") in ("1", "true", "True")
@@ -574,6 +577,9 @@ def main():
         # 不满足的既不推、也不写 pushed/first，年龄只会变大，之后不会翻盘。
         if chain not in NEW_TOKEN_CHAINS:
             log("口径过滤：第 {} 名 {} 非本轮口径链，跳过".format(rank, chain))
+            continue
+        if not str(address or "").endswith(NEW_TOKEN_SUFFIX):
+            log("口径过滤：第 {} 名 {} 非 {} 尾缀，跳过".format(rank, address, NEW_TOKEN_SUFFIX))
             continue
         try:
             created = int(t.get("creation_timestamp") or 0)
