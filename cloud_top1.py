@@ -79,7 +79,8 @@ GH_API = "https://api.github.com"
 
 # ---------------------------------------------------------------- dbotx 模拟买入
 # 用户规则（2026-11-11 起）：凡推送成功的合约，同步在 dbotx 模拟器买入
-# SOL 链 1 SOL / BSC 链 1 BNB，止盈 +50% 触发后全部卖出（stopEarnPercent=0.5）。
+# SOL 链 1 SOL / BSC 链 1 BNB，止盈 +40% 触发后全部卖出（stopEarnPercent=0.4，
+# 2026-11-15 由 +50% 改成 +40%）。
 # 云端只在真正推送成功后买；DRY 轮不买。买入记录写远端 top1_dbotx_bought.json，
 # 与本机 top1_dbotx_bought.json 各自独立（两端推送的合约本就不重叠）。
 DBOTX_API_KEY = os.environ.get("DBOTX_API_KEY", "").strip()
@@ -90,7 +91,7 @@ DBOTX_CHAIN = {           # gmgn 链名 -> (dbotx chain 名, 买入数量)
     "sol": ("solana", 1.0),
     "bsc": ("bsc", 1.0),
 }
-DBOTX_STOP_EARN = 0.5
+DBOTX_STOP_EARN = 0.4
 # 止损（2026-11-15 与本机对齐）：跌幅达 50% 即全部卖出。
 # dbotx 官方口径：stopLossPercent 取 0.00-1.00 正数，0.5 = 跌 50% 卖出（单值模式全卖）。
 DBOTX_STOP_LOSS = 0.5
@@ -194,7 +195,7 @@ def write_remote_merged(path, merge, msg, max_attempts=3):
 
 # ---------------------------------------------------------------- dbotx 模拟买入
 def dbotx_buy(chain, address):
-    """模拟器买入：SOL 1 / BNB 1，止盈 +50% 全卖。返回 (ok, order_id_or_err)。
+    """模拟器买入：SOL 1 / BNB 1，止盈 +40% 全卖、止损 -50% 全卖。返回 (ok, order_id_or_err)。
 
     地址必须原样传（SOL 的 Base58 大小写敏感，转小写会变成另一个地址）。
     """
@@ -259,7 +260,7 @@ def buy_after_push(chain, address):
     ok, info = dbotx_buy(chain, address)
     unit = "SOL" if chain == "sol" else "BNB"
     if ok:
-        log("dbotx 买入成功：{} {} 1 {}（止盈 +50% 全卖）order={}".format(
+        log("dbotx 买入成功：{} {} 1 {}（止盈 +40% 全卖 / 止损 -50% 全卖）order={}".format(
             chain, address, unit, info))
     else:
         log("dbotx 买入失败：{} {} | {}".format(chain, address, info))
