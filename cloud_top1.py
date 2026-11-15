@@ -63,7 +63,7 @@ TG_CHAT = int(os.environ.get("TG_CHAT_ID", "-5589667040"))
 HB_STALE = int(os.environ.get("HB_STALE", "120"))
 HB_FUTURE_TOLERANCE = 300
 LIMIT = int(os.environ.get("LIMIT", "30"))
-TOP_N = int(os.environ.get("TOP_N", "200"))   # 单轮候选上限。2026-11-15 起名次不限前 15（上榜即推），200 覆盖全榜约 160 条
+TOP_N = int(os.environ.get("TOP_N", "50"))   # 2026-11-16：进入「热搜·全部链」前 50 名即推（原先的全榜不限名次已收回）
 
 # 口径（2026-11-15 与本机对齐）：只推 SOL 链、地址以 pump 结尾、且创建时间在 24 小时内的合约。
 # 名次不再限前 15：只要在「全部链」混排热搜榜里出现即参与；缺 creation_timestamp 一律跳过。
