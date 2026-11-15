@@ -50,6 +50,7 @@
   "0xe1dedb914b81185af10290e2bc107c1807207777",
   "0xe4ce6f8caa3a76a53fdad70f2af393c01ecd7777",
   "27sdllwdhfd4ban3lq8kfeoaie2924vrbqsyjdjjpump",
+  "2cl641ef8w3tbjyvhd9gop7vwq5t6de6lfu4qs7vpump",
   "2dkjqfnntjhc67f3u9zlkieg3qgmqk3z6rteg3cphhdw",
   "2er3utbqgwyngekmyus218i11z6v4gtfgwmqosnppump",
   "2etgxcfrwjrbumgu7t5yicdfyfqd3sun3cfosrcppump",
@@ -206,7 +207,7 @@
   "wsdxiro6eyxpn8iman7rejds8cc5uuifdcefduspump",
   "yvkbljpuuhyxbweczdfdh1fsvhfr6h91uf6upmm8los"
  ],
- "updated": 1794772708,
+ "updated": 1794773662,
  "top1_first_at": {
   "0x09dcb7611dedacca88b61d19f5b467d1d521fb2c": 1794430680,
   "0x0a90e9911fbb3e18d0aed2eb33b00dcdf1477777": 1794659928,
@@ -251,6 +252,7 @@
   "0xe1dedb914b81185af10290e2bc107c1807207777": 1794625211,
   "0xe4ce6f8caa3a76a53fdad70f2af393c01ecd7777": 1794576483,
   "27sdllwdhfd4ban3lq8kfeoaie2924vrbqsyjdjjpump": 1794690262,
+  "2cl641ef8w3tbjyvhd9gop7vwq5t6de6lfu4qs7vpump": 1794773660,
   "2dkjqfnntjhc67f3u9zlkieg3qgmqk3z6rteg3cphhdw": 1794578692,
   "2er3utbqgwyngekmyus218i11z6v4gtfgwmqosnppump": 1794508115,
   "2etgxcfrwjrbumgu7t5yicdfyfqd3sun3cfosrcppump": 1794476954,
