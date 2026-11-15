@@ -754,5 +754,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794770784
+ },
+ "cxrw8hpbcbbol18wlhhjct1cfle3jsdfoflrz8abpump": {
+  "addr": "Cxrw8hPBcbboL18wLhHJCt1CfLe3JSdfofLrZ8ABpump",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwi9983408tyyp",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794772583
  }
 }
