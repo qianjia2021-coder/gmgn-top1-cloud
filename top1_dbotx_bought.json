@@ -821,10 +821,10 @@
  "grq5lcpd7b9smf4v3lzjlbfwnqhdynfwraxq2qtrpump": {
   "addr": "GrQ5LcpD7b9sMf4v3LZJLbfwnQHdYnfwRAxq2qTRpump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 1,
-  "ts": 1794779309
+  "ok": true,
+  "id": "mwidbuo80bcabe",
+  "err": "",
+  "attempts": 2,
+  "ts": 1794779424
  }
 }
