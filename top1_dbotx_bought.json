@@ -898,5 +898,14 @@
   "err": "",
   "attempts": 1,
   "ts": 1794803910
+ },
+ "edamfnn3ftexdmbdmswuukchokqfyf4vato1hjxnpump": {
+  "addr": "EDaMfNn3FTEXDmbdMSwuUkcHoKQFYf4vato1hjxnpump",
+  "chain": "sol",
+  "ok": true,
+  "id": "mwisovbz0bp35e",
+  "err": "",
+  "attempts": 1,
+  "ts": 1794805225
  }
 }
