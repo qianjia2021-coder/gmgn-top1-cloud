@@ -911,10 +911,10 @@
  "anpikg3a5qkjjheenjdmjzvdppvtq8b1ii6unvg3pump": {
   "addr": "ANPikG3a5qKJjHeeNjDmjZvDPPVtQ8B1ii6unvg3pump",
   "chain": "sol",
-  "ok": false,
-  "id": "",
-  "err": "{'err': True, 'res': 'pair not found', 'code': None}",
-  "attempts": 1,
-  "ts": 1794808589
+  "ok": true,
+  "id": "mwiurjgj0bs610",
+  "err": "",
+  "attempts": 2,
+  "ts": 1794808709
  }
 }
